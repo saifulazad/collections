@@ -11,14 +11,14 @@ terraform {
 }
 
 provider "google" {
-  project = "saifuls-playground"
-  region  = "us-central1"
-  zone    = "us-central1-c"
+  project = var.project_id
+  region  = var.region
+  zone    = var.zone
 }
 
-resource "google_service_account" "sa" {
+resource "google_service_account" "service_account" {
   project    = var.project_id
-  account_id = "github-action-sa"
+  account_id = var.service_account_id
 }
 
 resource "google_project_iam_member" "project" {
@@ -33,17 +33,7 @@ resource "google_project_iam_member" "project" {
   project = var.project_id
   count   = length(var.rolesList)
   role    = var.rolesList[count.index]
-  member  = "serviceAccount:${google_service_account.sa.email}"
-}
-output "email" {
-  value = google_service_account.sa.email
-}
-
-resource "random_id" "name_suffix" {
-  /**
-    * Creates a random ID and uses it to configure the gh-oidc module from the
-  */
-  byte_length = 4
+  member  = "serviceAccount:${google_service_account.service_account.email}"
 }
 
 module "oidc" {
@@ -58,11 +48,11 @@ module "oidc" {
 
   source      = "terraform-google-modules/github-actions-runners/google//modules/gh-oidc"
   project_id  = var.project_id
-  pool_id     = "github-action-pool-${random_id.name_suffix.hex}"
-  provider_id = "github-action-provider-${random_id.name_suffix.hex}"
+  pool_id     = "github-action-pool"
+  provider_id = "github-action-provider"
   sa_mapping  = {
     (google_service_account.sa.account_id) = {
-      sa_name   = google_service_account.sa.name
+      sa_name   = google_service_account.service_account.name
       # @param {string} git_repo - The name of the GitHub repository.
       attribute = var.git_repo
     }
@@ -77,6 +67,10 @@ output "provider_name" {
  */
   value = module.oidc.provider_name
 }
+output "email" {
+  value = google_service_account.service_account.email
+}
+
 
 
 
