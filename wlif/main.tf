@@ -17,7 +17,7 @@ provider "google" {
 }
 
 resource "google_service_account" "service_account" {
-  project    = var.project_id
+#  project    = var.project_id
   account_id = var.service_account_id
 }
 
@@ -48,10 +48,10 @@ module "oidc" {
 
   source      = "terraform-google-modules/github-actions-runners/google//modules/gh-oidc"
   project_id  = var.project_id
-  pool_id     = "github-action-pool"
-  provider_id = "github-action-provider"
+  pool_id     = var.pool_id
+  provider_id = var.provider_id
   sa_mapping  = {
-    (google_service_account.sa.account_id) = {
+    (google_service_account.service_account.account_id) = {
       sa_name   = google_service_account.service_account.name
       # @param {string} git_repo - The name of the GitHub repository.
       attribute = var.git_repo

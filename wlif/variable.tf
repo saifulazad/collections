@@ -14,6 +14,10 @@ variable "project_id" {
 variable "service_account_id" {
   default = "github-action-sa"
 }
+variable "pool_id" {
+  default = "github-action-pool"
+}
+variable "provider_id" {}
 variable "git_repo" {
   default = "attribute.repository/Muazzeem/flask_application"
 }
