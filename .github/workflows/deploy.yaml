@@ -1,0 +1,37 @@
+name: deploy-gcp-staging
+
+on:
+  push:
+    branches: main
+jobs:
+
+  deploy:
+    timeout-minutes: 10
+
+    runs-on: ubuntu-20.04
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+    # actions/checkout MUST come before auth
+    - uses: 'actions/checkout@v3'
+
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: 'projects/294059432651/locations/global/workloadIdentityPools/sample-github-action-pool/providers/sample-gha-wlif-work'
+        service_account: 'github-action-sa@saifuls-playground.iam.gserviceaccount.com'
+
+    
+    # Install gcloud, `setup-gcloud` automatically picks up authentication from `auth`.
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+
+    # Now you can run gcloud commands authenticated as the impersonated service account.
+    - id: 'gcloud'
+      name: 'gcloud'
+      run: |-
+        gcloud secrets versions access "latest" --secret "my-secret"

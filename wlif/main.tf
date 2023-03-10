@@ -39,9 +39,6 @@ resource "google_project_iam_member" "project" {
 module "oidc" {
 
   /**
-   * Creates a random ID and uses it to configure the gh-oidc module from the
-   * terraform-google-modules/github-actions-runners/google module registry.
-   *
    * @param {string} project_id - The ID of the Google Cloud project.
    * @return {string} The name of the GitHub Action provider.
    */
@@ -53,21 +50,15 @@ module "oidc" {
   sa_mapping  = {
     (google_service_account.service_account.account_id) = {
       sa_name   = google_service_account.service_account.name
-      # @param {string} git_repo - The name of the GitHub repository.
       attribute = var.git_repo
     }
   }
 }
 
 output "provider_name" {
-  /**
-   * Returns the provider name of the OIDC module.
-   *
-   * @returns {string} The provider name.
- */
   value = module.oidc.provider_name
 }
-output "email" {
+output "service_account_email" {
   value = google_service_account.service_account.email
 }
 
