@@ -1,0 +1,22 @@
+steps:
+  # Docker Build
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'build', '-t',
+            'us-central1-docker.pkg.dev/pause-demo/cloud-run-source-deploy/flask-app',
+            '.' ]
+
+  # Docker Push
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [ 'push',
+            'us-central1-docker.pkg.dev/pause-demo/cloud-run-source-deploy/flask-app' ]
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    args: [
+      "beta",
+      "run",
+      "deploy",
+      "database-connector",
+      "--image=us-central1-docker.pkg.dev/pause-demo/cloud-run-source-deploy/flask-app",
+      "--region=us-central1",
+      "--allow-unauthenticated" ]
+
