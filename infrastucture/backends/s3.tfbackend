@@ -1,0 +1,6 @@
+bucket = "jobkhuzi-tfstate" # Change to your bucket name
+key    = "state/devops-course/terraform.tfstate"
+region = "us-east-1" # Change to your preferred region
+
+# Optional: Server-side encryption
+encrypt = true
