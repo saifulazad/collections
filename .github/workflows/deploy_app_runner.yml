@@ -1,0 +1,102 @@
+
+name: Build and Push Docker Image to Amazon ECR  # Name of the workflow shown in GitHub Actions UI
+
+# The 'on:' block defines which event(s) will trigger the GitHub Actions workflow.
+# Here, it is set to run on a 'push' event — when someone pushes code to the repository.
+on:
+  push:  # Triggers the workflow on a push event
+    # 'branches' specifies which branch(es) the push must affect to trigger the workflow
+    branches:
+      - master  # Only trigger the workflow when code is pushed to the 'master' branch
+
+    # You can also trigger workflows on tag pushes
+    # tags:
+    #   - 'v*'  # Trigger when tags starting with 'v' are pushed, like v1.0, v2.1, etc.
+
+    # Use 'paths' to trigger the workflow only when specific files or folders are changed
+    # paths:
+    #   - 'src/**'  # Trigger only if files in the 'src' folder are changed
+
+    # Use 'paths-ignore' to ignore changes to specific files or folders
+    # paths-ignore:
+    #   - 'README.md'  # Do not trigger the workflow if only README.md is changed
+
+# 👉 For more details on all supported events you can use under 'on:', visit:
+# https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
+
+
+# The 'env:' block defines environment variables that can be used throughout the workflow.
+# These variables make your workflow cleaner and easier to maintain.
+
+env:
+  # AWS region where your ECR (Elastic Container Registry) repository is hosted
+  AWS_REGION: ap-southeast-1
+
+
+  # Name of your ECR repository where the Docker image will be pushed
+  ECR_REPOSITORY: flask_docker
+
+  # The tag to assign to your Docker image (e.g., 'latest', 'v1.0', etc.)
+  IMAGE_TAG: latest
+
+# 👉 For more about using environment variables in GitHub Actions, see:
+# https://docs.github.com/en/actions/learn-github-actions/environment-variables
+
+
+jobs:  # ✅ The "jobs" block defines all jobs in the workflow. Each job can run independently on a runner (virtual machine).
+  deploy:  # ✅ This is the name of the job (you can name it anything like "build-and-deploy", etc.)
+    runs-on: ubuntu-latest  # ✅ Specifies the operating system of the GitHub-hosted runner (Ubuntu in this case)
+
+    steps:  # ✅ The "steps" block defines a sequence of actions and shell commands to run inside the job
+      - name: ⬇️ Checkout Source Code
+        uses: actions/checkout@v4   # Pull your repository code into the GitHub Actions runner
+
+      - name: 🔐 Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4  # GitHub Action to set AWS credentials
+        with:
+          aws-access-key-id: AKIA5V5WGNMDDRFKNF7I       # Your AWS access key (use secrets in real workflows)
+          aws-secret-access-key: ${{secrets.AWS_SECRET_KEY}}  # Your AWS secret key
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: 🔐 Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2  # Login to ECR so Docker can push images
+
+      - name: 🛠️ Build Docker Image
+        run: |
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG run  # Build Docker image and tag it with repo name and tag
+
+      - name: 🏷️ Tag & Push Docker Image to ECR
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)  # Get AWS account ID
+          IMAGE_URI=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG  # Construct full image URI
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG $IMAGE_URI   # Tag the image with the full ECR URI
+          docker push $IMAGE_URI                             # Push the image to Amazon ECR
+
+      - name: ✅ Done
+        run: echo "✅ Docker image pushed to ECR successfully!"
+        # ✅ Final success message in GitHub Actions logs
+
+  # ==============================================
+  # 📘 Notes for Advanced Workflow Customization
+  # ==============================================
+  #
+  # Inside `jobs:` block, you can also use:
+  #
+  #   name:              # Human-readable job name
+  #   needs:             # Run this job after another job finishes
+  #   if:                # Conditional execution of a job
+  #   env:               # Job-specific environment variables
+  #   timeout-minutes:   # Timeout for job
+  #   environment:       # Define deployment environment (used with GitHub Environments)
+  #
+  # Inside `steps:` block, you can also use:
+  #
+  #   name:              # Step description shown in GitHub UI
+  #   uses:              # GitHub Action reference (e.g., checkout, login, etc.)
+  #   run:               # Shell command to run
+  #   env:               # Step-specific environment variables
+  #   if:                # Conditional step execution
+  #   id:                # Set step ID to reference outputs later
+
+  # For more detailed information, visit: https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions
