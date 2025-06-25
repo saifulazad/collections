@@ -7,7 +7,7 @@ on:
   push:  # Triggers the workflow on a push event
     # 'branches' specifies which branch(es) the push must affect to trigger the workflow
     branches:
-      - master  # Only trigger the workflow when code is pushed to the 'master' branch
+      - main  # Only trigger the workflow when code is pushed to the 'master' branch
 
     # You can also trigger workflows on tag pushes
     # tags:
