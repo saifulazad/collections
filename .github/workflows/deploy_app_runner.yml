@@ -14,8 +14,8 @@ on:
     #   - 'v*'  # Trigger when tags starting with 'v' are pushed, like v1.0, v2.1, etc.
 
     # Use 'paths' to trigger the workflow only when specific files or folders are changed
-    # paths:
-    #   - 'src/**'  # Trigger only if files in the 'src' folder are changed
+    paths:
+      - 'run/**'  # Trigger only if files in the 'src' folder are changed
 
     # Use 'paths-ignore' to ignore changes to specific files or folders
     # paths-ignore:
