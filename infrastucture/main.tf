@@ -142,7 +142,7 @@ resource "aws_iam_policy" "ecr_specific_repo" {
           "ecr:DescribeImages",
           "ecr:ListImages"
         ]
-        Resource = "arn:aws:ecr:${local.region}:${local.account_id}:repository/demo-docker-image"
+        Resource = "arn:aws:ecr:ap-southeast-1:940443069190:repository/flask_docker"
       }
     ]
   })
@@ -154,6 +154,12 @@ resource "aws_iam_group_policy_attachment" "ecr_users_policy" {
   policy_arn = aws_iam_policy.ecr_specific_repo.arn
 }
 
+
+# Attach AWS managed read-only policy to group
+resource "aws_iam_group_policy_attachment" "apprunner_readonly_attachment" {
+  group      = var.existing_group_name
+  policy_arn = "arn:aws:iam::aws:policy/AWSAppRunnerReadOnlyAccess"
+}
 
 
 
