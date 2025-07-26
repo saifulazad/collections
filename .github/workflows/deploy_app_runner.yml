@@ -54,7 +54,7 @@ jobs:  # ✅ The "jobs" block defines all jobs in the workflow. Each job can run
       - name: 🔐 Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4  # GitHub Action to set AWS credentials
         with:
-          aws-access-key-id: AKIA5V5WGNMDDRFKNF7I       # Your AWS access key (use secrets in real workflows)
+          aws-access-key-id: AKIA5V5WGNMDLS2UYMF6       # Your AWS access key (use secrets in real workflows)
           aws-secret-access-key: ${{secrets.AWS_SECRET_KEY}}  # Your AWS secret key
           aws-region: ${{ env.AWS_REGION }}
 
